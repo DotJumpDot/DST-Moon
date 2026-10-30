@@ -18,12 +18,17 @@
   config:
     # The only provider: a local llama.cpp server (OpenAI-compatible).
     # Start it from C:\Code\Ai_Model (all launchers use 127.0.0.1:8080).
-    # `model` is only the FIRST-RUN default: the route discovers the live
-    # model list, and a pin that is not currently loaded adopts the first
-    # running alias at boot (auto-detect). /model switches and persists.
+    # `model` resolves at boot from DSH_LLAMA_MODELS (the launcher probes
+    # GET /v1/models) — the name shown and requested IS the running alias.
     provider: llama-local
-    model: Qwen36-35B-ablit
-    preset: !!js process.env.DSH_TUI_PRESET ?? undefined
+    model: !!js "(process.env.DSH_LLAMA_MODELS ?? 'Qwen36-35B-ablit').split('|').filter(s => s.length > 0)[0] || 'Qwen36-35B-ablit'"
+    # liangshen = the TUI's curated lean preset: minimal bootstrap tool face
+    # (opens after the first tool call), persona with runtime-context
+    # suppression. The harness DEFAULT preset mounts the time-context plugin,
+    # whose per-turn "Time sampled... / Browser time zone: unavailable. Ask
+    # the user to clarify..." block a local model reads literally and rambles
+    # about on every hello — liangshen does not mount it.
+    preset: !!js process.env.DSH_TUI_PRESET || 'liangshen'
     workspace: !!js process.env.DSH_TUI_WORKSPACE_TARGET ?? undefined
     sessionId: !!js process.env.DSH_TUI_RESUME_SESSION ?? undefined
     backend: !!js process.env.DSH_TUI_BACKEND || undefined

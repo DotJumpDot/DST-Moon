@@ -5,6 +5,15 @@ One line per meaningful change, newest first. Format:
 list under its date line. Entries mirror the commit log; commits
 themselves follow the style in `AGENTS.md`.
 
+- 2026-10-31 — Model name follows the running alias + liangshen preset
+  (user reports): TUI row `model` now resolves from DSH_LLAMA_MODELS at
+  boot (llama.cpp ignores the model field, so sessions worked while the
+  display stayed pinned to Qwen36-35B-ablit); `preset: liangshen` replaces
+  the harness default preset, whose time-context plugin injected a
+  per-turn "Time sampled... / Browser time zone: unavailable. Ask the user
+  to clarify..." user-message block that the local model read literally and
+  rambled about on every hello (session-log verified, source.kind
+  time-context; Comet sessions show the same injection).
 - 2026-10-31 — Route models fixed to a real list (Fix): pi-ai refuses a
   hand-declared route with no models at boot ("resolves no models"), so the
   launchers now probe GET /v1/models and pass the running aliases in
