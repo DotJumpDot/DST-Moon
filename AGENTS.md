@@ -6,10 +6,14 @@ a new project and the style carries over unchanged.
 
 ## What this repo is
 
-> **Replace this block on day one of the real project.** Two to five
-> sentences: what the project does, the launch/run command if any, and
-> the primary platform (for us: Windows, Git Bash + PowerShell, Windows
-> Terminal first).
+DST-Moon: a UX fork of dsh-TUI on top of the DeepSeek Harness (`dsh`)
+engine, aimed at **local AI models** (llama.cpp, OpenAI-compatible, no API
+key). The launch command is `dstm` (`dsh --profile dst-moon`). It is the
+local-model sibling of DST-Comet (the bug-bounty harness): same engine,
+same fork lineage, **zero shared state** — own profile (`dst-moon`), own
+TUI data dir (`~/.dst-moon`), own session roots, no MCP servers, and a
+strict workspace-write sandbox. Primary platform: Windows (Git Bash +
+PowerShell / Windows Terminal).
 
 ## Repo layout
 
@@ -18,61 +22,62 @@ a new project and the style carries over unchanged.
 - `CHANGELOG.md` — newest-first `YYYY-MM-DD — what` log of the work.
 - `Docs/` — long-form docs, one topic per file (`Docs/README.md` is the
   index). Plan notes, architecture, run instructions, handoffs.
-- `src/` / `app/` / `scripts/` — code lands here once the project picks
-  a stack; keep the same names across repos when possible.
+  `Docs/CHANGES.md` records every modified file vs the upstream pin.
+- `vendor/dsh-tui/` — **our fork; all product changes happen here.**
+  `vendor/deepseek-harness/` is a read-only, untracked reference
+  (recreate with `scripts/setup-vendor.sh`).
+- `profile/` — the `dst-moon` dsh profile patch; source of truth for
+  provider + sandbox config. `scripts/install-fork.bat` installs it.
+- `engine/` — forked Agent Teams packages at `-moon.1` versions.
+- `plugins/dst-moon-agent-tools/` — context-awareness tools.
+- `bin/dstm` / `bin/dstm.cmd` — the launcher.
 
 ## House rules
 
+- Keep upstream file structure; make changes surgical and documented so we
+  can rebase on new upstream pins. Record each modified file in
+  `Docs/CHANGES.md` with a one-line reason.
+- The session log is the source of truth; the TUI only projects it.
 - Windows is the primary platform. Verify anything user-visible in both
   Git Bash and PowerShell / Windows Terminal before claiming it works.
-- Docs are not optional: every meaningful change updates `CHANGELOG.md`
-  in the same commit, and `Docs/` pages stay current with reality.
+- **No secrets in this repo** — and never copy DST-Comet's profile patch
+  wholesale: it contains live credentials. Moon's profile is written from
+  scratch in `profile/cordis.patch.yml`.
+- **No MCP servers in the Moon profile.** The whole point is a cheap first
+  hello for a local model; adding a big tool schema back is a regression.
+- **Strict folder rule stays strict:** the profile ships
+  `sandbox-policy: workspace-write` + `approval: ask`. Don't "fix" agents
+  hitting `FS_SANDBOX_DENIED` walls by loosening the profile — fix the
+  workspace or use `/permission` per session.
+- State separation is load-bearing: `~/.dst-moon` (data dir) and
+  `DSH_TUI_SESSION_ROOT` must keep pointing at Moon-owned paths. Don't
+  reintroduce shared `~/.dsh-tui` references in the fork.
 - Small surgical commits. One commit = one type of work = one checklist.
-  If a change needs a second paragraph of "also", it wants its own commit.
-- Never commit secrets (API keys, tokens, cookies, `.env`). Secrets live
-  outside the repo or in ignored files only.
 - Don't rewrite pushed history. Fix-forward with a new commit.
 
 ## Commit & push style (every commit, no exceptions)
 
 **Subject:** `Type: summary (extra detail in parens)` — Type ∈
-`Feat | Fix | Test | Docs | Chore | Release`. Bug-bounty repos may also
-use `Hunt | Report`. One commit carries exactly one type; never mix.
+`Feat | Fix | Test | Docs | Chore | Release`. One commit carries exactly
+one type; never mix.
 
 **Body:** a `- [x]` checklist of what the commit actually did — one item
 per real change, wrapped ~72 cols, concrete (file names, setting names,
 numbers), not restatements of the subject.
 
 **Closer:** a `Verified:` paragraph naming the checks that ran and their
-results (commands + counts, e.g. `verify:build 96/98 with only the two
-documented env-only fails`). If verification was declined or impossible,
+results (commands + counts). If verification was declined or impossible,
 say that plainly instead — never fake a green.
 
 ```
-Feat: sidebar mascot placement setting (top header or centered at the panel foot)
-- [x] New display setting `dsh-tui.sidebarLogoPosition` (top | bottom,
-  default top) through the full chain: Config schema, channel seed +
-  apply, channel-ui port + ui-policy, state/preferences setter,
-  /settings select field (appearance, zh/en)
-- [x] bottom placement: mascot centered above the hint row with its own
-  row budget from the panel host; header becomes the text-only wordmark
-  and the divider's top junction tee follows that height
-- [x] same >=42-col width gate and the same click cycle as the header
-  placement (girl → whale → none); mascot variant stays the file pref
+Feat: moon theme replaces comet (pink-night structure, moonlit palette)
+- [x] theme.ts: moonNightTheme + MOON_BAR_RAMP (accent #F2D583, blue
+  #7FB6D9, text #EDF1F5, cool night neutrals); comet theme + case removed;
+  auto-dark slot resolves to moon; isLightThemeActive dark identity
+- [x] themeCatalog.ts BUILT_IN_BASE moon:'dark'; branding.ts splash words
+  DST/MOON + moonlight tagline; LogoV2 honors deepseek-brand tagline
 
-Verified: pnpm typecheck + compile clean (79 settings); verify:build
-96/98 with only the two documented env-only fails; verify-side-panel-
-layout 221 checks incl. new bottom-placement unit + render cases.
-```
-
-```
-Fix: date color ladder remapped per user spec (raw accent under a day, finer steps)
-- [x] <1 day: colorScheme.primary raw (no lightening)
-- [x] Even hue steps: week -30, month -60, yellow -85 (<3 months),
-  orange -105 (3-6 months), deep orange -120 (to a year)
-
-User declined emulator verification for this tweak. 290 tests green,
-analyze clean.
+Verified: pnpm compile clean; verify-moon-transcript OK; typecheck green.
 ```
 
 **Push policy:** one push = one or more *whole* commits of exactly this
