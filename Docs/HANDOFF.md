@@ -41,3 +41,8 @@ changes state a stranger (or future-you) would trip over.
   shows it too) — ignore.
 - Comet's profile `~/.dsh/profiles/dsh-tui/cordis.patch.yml` holds live
   credentials. Never copy from it; Moon's profile is hand-written.
+- Thai rendering (2026-10-31): Prompt (Maki_Launcher's font) installed
+  per-user (`%LOCALAPPDATA%\Microsoft\Windows\Fonts` + HKCU Fonts registry);
+  Windows Terminal defaults font face is `["Cascadia Mono", "Prompt"]`
+  (per-glyph fallback — English unchanged, Thai drops to Prompt). Backup:
+  `settings.json.bak-2026-10-31` next to the WT settings.json.
