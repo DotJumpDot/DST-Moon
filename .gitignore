@@ -26,3 +26,14 @@ tmp/
 Thumbs.db
 .DS_Store
 .idea/
+
+# Vendored harness reference checkout — too large to track; scripts/setup-vendor.sh
+# clones it at the pin recorded in VENDORED.md. We do not modify it.
+vendor/deepseek-harness/
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Fork test-harness helpers: tracked verify-* scripts import scripts/lib —
+# keep it in git (upstream ships it; a bare `lib/` ignore would drop it).
+!vendor/dsh-tui/scripts/lib/
