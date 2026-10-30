@@ -41,8 +41,13 @@ changes state a stranger (or future-you) would trip over.
   shows it too) — ignore.
 - Comet's profile `~/.dsh/profiles/dsh-tui/cordis.patch.yml` holds live
   credentials. Never copy from it; Moon's profile is hand-written.
-- Thai rendering (2026-10-31): Prompt (Maki_Launcher's font) installed
-  per-user (`%LOCALAPPDATA%\Microsoft\Windows\Fonts` + HKCU Fonts registry);
-  Windows Terminal defaults font face is `["Cascadia Mono", "Prompt"]`
-  (per-glyph fallback — English unchanged, Thai drops to Prompt). Backup:
-  `settings.json.bak-2026-10-31` next to the WT settings.json.
+- Thai rendering (2026-10-31): the WT `font.face` array is NOT supported
+  (schema wants a string), so a merged font does the job instead —
+  "Cascadia Prompt" = Cascadia Mono glyphs (instantiated 400/700 from the
+  system variable font) merged with Prompt (Maki_Launcher's Thai font,
+  scaled 1000->2048 upem) via fontTools pyftmerge; installed per-user
+  (`%LOCALAPPDATA%\Microsoft\Windows\Fonts\CascadiaPrompt-{Regular,Bold}.ttf`
+  + HKCU Fonts registry). WT defaults face = "Cascadia Prompt": English is
+  stock Cascadia Mono, Thai is Prompt. Backups: `settings.json.bak-2026-10-31`
+  next to the WT settings.json; rebuild script pattern in the 2026-10-31
+  session (scale_upem + Merger + name-table rename).
