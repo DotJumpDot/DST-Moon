@@ -1,0 +1,35 @@
+#!/bin/sh
+# dstm — DST Moon launcher (bash). Mirrors bin/dstm.cmd.
+# Boots dsh with the dst-moon profile: OUR fork of dsh-tui aimed at a LOCAL
+# model (llama.cpp, OpenAI-compatible) — see VENDORED.md and profile/.
+#   --resume: feed the session id recorded by the TUI to DSH_TUI_RESUME_SESSION
+# DST-Moon keeps its own state (~/.dst-moon) so it never shares settings,
+# history or session logs with a sibling dsh-tui fork (DST-Comet, ~/.dsh-tui).
+set -e
+: "${NODE_ENV:=production}"
+export NODE_ENV
+# Session logs live under our own data dir unless the caller overrides.
+: "${DSH_TUI_SESSION_ROOT:=$HOME/.dst-moon/sessions}"
+export DSH_TUI_SESSION_ROOT
+if [ -n "$DSH_TUI_WORKSPACE" ]; then cd "$DSH_TUI_WORKSPACE"; fi
+
+command -v dsh >/dev/null 2>&1 || {
+  echo "[dstm] dsh CLI not found. Install: npm install -g @deepseek-ai/dsh" >&2
+  exit 1
+}
+
+# Rebuild the positional set without --resume (the for list snapshots "$@"
+# before `set --` starts replacing it).
+set --
+for a in "$@"; do
+  if [ "$a" = "--resume" ]; then
+    if [ -f "$HOME/.dst-moon/resume.txt" ]; then
+      DSH_TUI_RESUME_SESSION=$(cat "$HOME/.dst-moon/resume.txt")
+      export DSH_TUI_RESUME_SESSION
+    fi
+  else
+    set -- "$@" "$a"
+  fi
+done
+
+exec dsh --profile dst-moon "$@"

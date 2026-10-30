@@ -1,0 +1,82 @@
+# DST-Moon profile patch — the LOCAL-model harness.
+#
+# Installed to %USERPROFILE%\.dsh\profiles\dst-moon\cordis.patch.yml by
+# scripts\install-fork.bat (the file is the source of truth; edit it here,
+# re-run the installer or copy it over). Completely separate from any sibling
+# dsh-tui profile: own TUI fork tarball, own engine fork tarballs, own data
+# dir (~/.dst-moon), and NO MCP servers ride along — DST-Comet's
+# Constellation and its 59-77 tool schemas stay on the Comet side. That was
+# the point: a local model's first hello should not cost 33k tokens.
+#
+# House policy (strict folder rule): the agent may only WRITE inside the
+# workspace it was launched in. Reads elsewhere are fine; every mutation
+# outside the workspace root is denied (fs-sandbox), and the few privileged
+# operations ask first. See the sandbox-policy / approval rows at the bottom.
+
+- id: dsh-tui
+  name: "@deepseek-harness-tui/dsh-tui"
+  config:
+    # The only provider: a local llama.cpp server (OpenAI-compatible).
+    # Start it from C:\Code\Ai_Model (all launchers use 127.0.0.1:8080);
+    # the current main model is Qwen36-35B-ablit (APEX MiniPlus, 262k KV).
+    provider: llama-local
+    model: Qwen36-35B-ablit
+    preset: !!js process.env.DSH_TUI_PRESET ?? undefined
+    workspace: !!js process.env.DSH_TUI_WORKSPACE_TARGET ?? undefined
+    sessionId: !!js process.env.DSH_TUI_RESUME_SESSION ?? undefined
+    backend: !!js process.env.DSH_TUI_BACKEND || undefined
+    whaleIdle: true
+    whaleGirl: true
+    minimal: false
+    fullscreen: true
+    terminalImages: true
+    lang: en
+    toolBackground: none
+    pageMargin: normal
+    companion: { skin: whale }
+
+# Local model route. pi-ai's openai-completions adapter is the right shape
+# for llama.cpp; the dummy Authorization header satisfies its "no API key"
+# guard because the launchers run llama-server WITHOUT --api-key.
+# contextWindow is deliberately 131072 (half of the 262144 KV the launchers
+# run): CometStream ops lore says quality on these finetunes rots past
+# ~80-150k. Raise it if you would rather use the full window. maxTokens
+# 32768 matches the launchers' "set max_tokens HIGH (4K+) or thinking eats
+# the reply budget" note. thinkingFormat deepseek maps reasoning_content to
+# the thinking renderer; no reasoningEfforts declared, so no effort control
+# is offered (llama.cpp takes no reasoning_effort here) — drop thinking by
+# switching the server's chat template or model, not via effort.
+- id: llm-pi-ai
+  name: "@deepseek-ai/dsh-llm-pi-ai"
+  config:
+    providers:
+      llama-local:
+        displayName: llama.cpp (local)
+        api: openai-completions
+        baseURL: http://127.0.0.1:8080/v1
+        headers:
+          Authorization: "Bearer no-key"
+        defaultContextWindow: 131072
+        defaultMaxTokens: 32768
+        models:
+          - id: Qwen36-35B-ablit
+            name: Qwen36-35B-ablit
+            contextWindow: 131072
+            maxTokens: 32768
+            compat:
+              maxTokensField: max_tokens
+              thinkingFormat: deepseek
+
+# STRICT FOLDER RULE: writes stay inside the launch workspace. This replaces
+# the dsh-tui bundle's Windows default (danger-full-access + never-ask) with
+# workspace-write + ask — a local model on your own machine should not be
+# able to touch anything outside the project you pointed it at. Relax
+# per-session with /permission if a task truly needs more.
+- id: sandbox-policy
+  config:
+    mode: workspace-write
+    workspaceRoot: !!js process.cwd()
+    additionalWritableRoots: []
+- id: approval
+  config:
+    policy: ask
