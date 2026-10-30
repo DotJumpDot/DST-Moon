@@ -5,6 +5,14 @@ One line per meaningful change, newest first. Format:
 list under its date line. Entries mirror the commit log; commits
 themselves follow the style in `AGENTS.md`.
 
+- 2026-10-30 — Onboarding wizard skipped on Moon (user ask): the first-run
+  wizard assumes DEEPSEEK_API_KEY and the cloud catalog; shouldOfferOnboarding
+  now answers false unless DSH_TUI_ONBOARDING=1.
+- 2026-10-30 — Running-model auto-detect (user ask): profile drops the
+  hardcoded model list (pi-ai live-discovery of GET /v1/models), and
+  validateModelRoute adopts the first running alias for a local route whose
+  pin is not loaded instead of falling back to the cloud default; /model
+  lists everything the server serves.
 - 2026-10-30 — Status bar TPS made a plain single-color number (user pref):
   gauge + sparkline removed from the status line, InfoPanel tps row loses
   the green/yellow/red speed ladder; renderers stay in StatusMetrics.

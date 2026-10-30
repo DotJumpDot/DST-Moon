@@ -114,9 +114,15 @@ export function markOnboardingDone(version: number = ONBOARDING_VERSION, dir: st
  * The single place the "should it fire" question is answered, so the host
  * boot decision and any future `/setup` entry point cannot drift apart.
  *
+ * DST-Moon fork: the wizard's steps assume the DeepSeek cloud (API-key
+ * check, cloud model catalog) — meaningless for a product that runs a local
+ * llama.cpp server with no key, so the wizard never fires. Set
+ * `DSH_TUI_ONBOARDING=1` to force it for debugging.
+ *
  * @param prefs - The record read at boot (or a fixture in a test).
- * @returns True when the wizard has never been completed at this revision.
+ * @returns False on Moon unless `DSH_TUI_ONBOARDING=1`.
  */
 export function shouldOfferOnboarding(prefs: OnboardingPrefs = readOnboardingPrefs()): boolean {
-  return !prefs.completed || prefs.version < ONBOARDING_VERSION
+  if (process.env.DSH_TUI_ONBOARDING === '1') return true
+  return false
 }
