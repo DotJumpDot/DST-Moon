@@ -45,9 +45,6 @@ import {
   contextBarBreakdown,
   contextBarSegmentColors,
   renderMiniContextBar,
-  renderTpsGauge,
-  renderTpsSparkline,
-  speedColor,
   tpsStats,
 } from './StatusMetrics.js'
 import type { WaveBand } from '../dsh-adapter/types.js'
@@ -441,39 +438,15 @@ export function StatusLine({
     }
   }
 
+  // DST Moon: plain single-color number — no gauge/sparkline graph, no
+  // green/yellow/red speed ladder (user preference; the renderers stay in
+  // StatusMetrics for upstream compatibility).
   let tpsPart: FieldPart | undefined
   if (statusBar.tps && channel.tps !== undefined) {
-    if (channel.working && channel.tpsSamples.length === 0) {
-      tpsPart = {
-        key: 'tps',
-        id: 'tps',
-        node: (
-          <Text>
-            {renderTpsGauge(channel.tps, channel.tps)}{' '}
-            <Text dimColor>{Math.round(channel.tps)} tps</Text>
-          </Text>
-        ),
-      }
-    } else if (channel.tpsSamples.length > 0) {
-      const peak = Math.max(...channel.tpsSamples.map(sample => sample.tps), channel.tps)
-      tpsPart = {
-        key: 'tps',
-        id: 'tps',
-        node: (
-          <Text>
-            {channel.working
-              ? renderTpsGauge(channel.tps, peak)
-              : renderTpsSparkline(channel.tpsSamples)}{' '}
-            {speedColor(channel.tps, `${Math.round(channel.tps)}`)} tps
-          </Text>
-        ),
-      }
-    } else {
-      tpsPart = {
-        key: 'tps',
-        id: 'tps',
-        node: <Text dimColor>{Math.round(channel.tps)} t/s</Text>,
-      }
+    tpsPart = {
+      key: 'tps',
+      id: 'tps',
+      node: <Text dimColor>{Math.round(channel.tps)} tps</Text>,
     }
   }
 

@@ -2,7 +2,8 @@
  * InfoPanel — 侧栏「信息」面板：把当前会话的运行信息分组、紧凑地列出。
  *
  * 口径与状态栏完全一致：上下文占用（formatContextUsage + contextPressureStep
- * 阈值配色）、缓存命中（formatCacheHitRate）、TPS（tpsStats / speedColor）、
+ * 阈值配色）、缓存命中（formatCacheHitRate）、TPS（tpsStats；DST Moon: 纯数字
+ * 单色，无速度阈值配色）、
  * 花费（estimateSessionCostSnapshotCny 同一套门控）、模式名（modeDisplayName）、
  * cwd 展示折叠（formatProject）。本组件不推导任何新口径，只重排布局。
  *
@@ -20,7 +21,7 @@ import { formatContextUsage } from '../../tuiDisplayPrefs.js'
 import { modeDisplayName, type SessionModeSpec } from '../../sessionModes.js'
 import { estimateSessionCostSnapshotCny, isDeepSeekOfficialProvider, isPeakHour } from '../../deepseekPricing.js'
 import { formatCacheHitRate, formatCostReport } from '../../screens/StatusLine.js'
-import { contextPressureStep, speedColor } from '../../screens/StatusMetrics.js'
+import { contextPressureStep } from '../../screens/StatusMetrics.js'
 import { displayWorkingDirectory, formatProject } from '../../sessions/format.js'
 import { homeDir } from '../../utils/paths.js'
 import { Divider } from '../design-system/Divider.js'
@@ -106,8 +107,9 @@ export function InfoPanel({ width, height, focused, visible }: PanelProps): Reac
       ? '¥' + estimate.total.toFixed(2) + ' ' + t(isPeakHour() ? 'cost-now-peak' : 'cost-now-idle')
       : t('cost-unpriced', { tokens: formatTokens(estimate.unpricedTokens) })
     : none
+  // DST Moon: plain single-color number (no speedColor green/yellow/red ladder).
   const tpsText = channel.tps !== undefined
-    ? speedColor(channel.tps, String(Math.round(channel.tps))) + ' tps'
+    ? String(Math.round(channel.tps)) + ' tps'
     : none
   const jobs = channel.backgroundJobs
   const jobsLive = (jobs ?? []).filter(job => job.status === 'running' || job.status === 'stopping').length
