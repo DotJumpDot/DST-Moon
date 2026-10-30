@@ -42,12 +42,14 @@ changes state a stranger (or future-you) would trip over.
 - Comet's profile `~/.dsh/profiles/dsh-tui/cordis.patch.yml` holds live
   credentials. Never copy from it; Moon's profile is hand-written.
 - Thai rendering (2026-10-31): the WT `font.face` array is NOT supported
-  (schema wants a string), so a merged font does the job instead —
-  "Cascadia Prompt" = Cascadia Mono glyphs (instantiated 400/700 from the
-  system variable font) merged with Prompt (Maki_Launcher's Thai font,
-  scaled 1000->2048 upem) via fontTools pyftmerge; installed per-user
-  (`%LOCALAPPDATA%\Microsoft\Windows\Fonts\CascadiaPrompt-{Regular,Bold}.ttf`
-  + HKCU Fonts registry). WT defaults face = "Cascadia Prompt": English is
-  stock Cascadia Mono, Thai is Prompt. Backups: `settings.json.bak-2026-10-31`
-  next to the WT settings.json; rebuild script pattern in the 2026-10-31
-  session (scale_upem + Merger + name-table rename).
+  (schema wants a string), so a merged font does the job — "Cascadia
+  Prompt" = Cascadia Mono glyphs + Prompt (Maki_Launcher's Thai font)
+  merged via fontTools pyftmerge; installed per-user
+  (`%LOCALAPPDATA%\Microsoft\Windows\Fonts\CascadiaPrompt-*.ttf` + HKCU
+  Fonts registry, winreg to avoid backslash quoting bugs). WT defaults
+  face = "Cascadia Prompt". GOTCHA: build from the WT-BUNDLED Cascadia
+  (`C:\Program Files\WindowsApps\Microsoft.WindowsTerminal_*\CascadiaMono.ttf`,
+  2407.024), NOT the Windows system one (2102.025, three years older —
+  the English look changes and the user notices). If the installed file
+  is locked, install under a new filename and re-point the registry.
+  Backups: `settings.json.bak-2026-10-31` next to the WT settings.json.
