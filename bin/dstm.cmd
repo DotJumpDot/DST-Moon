@@ -11,6 +11,11 @@ rem         with the DST-Moon fork (scripts\install-fork.bat).
 setlocal
 if not defined NODE_ENV set "NODE_ENV=production"
 if not defined DSH_TUI_SESSION_ROOT set "DSH_TUI_SESSION_ROOT=%USERPROFILE%\.dst-moon\sessions"
+rem Ask the local server which aliases it is serving (node is guaranteed:
+rem dsh needs it) and pass them pipe-separated; the profile materializes the
+rem llama-local model list from this. Empty (server down) -> fallback alias.
+set "DSH_LLAMA_MODELS="
+for /f "usebackq delims=" %%i in (`node -e "const t=setTimeout(()=>process.exit(0),1500);fetch('http://127.0.0.1:8080/v1/models').then(r=>r.json()).then(j=>{clearTimeout(t);process.stdout.write((j.data||[]).map(m=>m.id).filter(Boolean).join('|'));process.exit(0)}).catch(()=>{clearTimeout(t);process.exit(0)})" 2^>nul`) do set "DSH_LLAMA_MODELS=%%i"
 set "WORKSPACE=%DSH_TUI_WORKSPACE%"
 if "%WORKSPACE%"=="" set "WORKSPACE=%CD%"
 cd /d "%WORKSPACE%"

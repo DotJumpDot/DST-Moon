@@ -11,6 +11,19 @@ export NODE_ENV
 # Session logs live under our own data dir unless the caller overrides.
 : "${DSH_TUI_SESSION_ROOT:=$HOME/.dst-moon/sessions}"
 export DSH_TUI_SESSION_ROOT
+# Ask the local server which aliases it is serving and pass them to the
+# profile pipe-separated (DSH_LLAMA_MODELS): the llama-local route's model
+# list is materialized from this at boot, so whatever start-*.bat is loaded
+# is what Moon offers. Empty (server down) -> the profile's fallback alias.
+DSH_LLAMA_MODELS=$(node -e '
+const t = setTimeout(() => process.exit(0), 1500)
+fetch("http://127.0.0.1:8080/v1/models").then(r => r.json()).then(j => {
+  clearTimeout(t)
+  console.log((j.data || []).map(m => m.id).filter(Boolean).join("|"))
+  process.exit(0)
+}).catch(() => { clearTimeout(t); process.exit(0) })
+' 2>/dev/null)
+export DSH_LLAMA_MODELS
 if [ -n "$DSH_TUI_WORKSPACE" ]; then cd "$DSH_TUI_WORKSPACE"; fi
 
 command -v dsh >/dev/null 2>&1 || {

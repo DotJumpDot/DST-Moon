@@ -69,6 +69,12 @@ rem not in the package dirs — move them from there.
 for /f "delims=" %%f in ('dir /b "%ENGINE%\*.tgz" 2^>nul') do move /y "%ENGINE%\%%f" "%EDIST%\%%f" >nul
 
 echo [dstm-install] installing into profile %PROFILE% ...
+rem The agent-tools plugin is link:-installed from the repo; its dependency
+rem (@deepseek-ai/dsh-tools) must be present in the plugin dir first.
+pushd "%ROOT%\plugins\dst-moon-agent-tools"
+call npx -y pnpm@11.21.0 install --config.nodeLinker=hoisted
+if errorlevel 1 (popd & echo [dstm-install] plugin install failed & exit /b 1)
+popd
 call dsh plugin --profile %PROFILE% add "%DIST%\dst-moon.tgz"
 if errorlevel 1 (echo [dstm-install] fork install failed & exit /b 1)
 for /f "delims=" %%f in ('dir /b "%EDIST%\*.tgz" 2^>nul') do (

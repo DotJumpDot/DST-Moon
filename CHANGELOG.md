@@ -5,6 +5,12 @@ One line per meaningful change, newest first. Format:
 list under its date line. Entries mirror the commit log; commits
 themselves follow the style in `AGENTS.md`.
 
+- 2026-10-31 — Route models fixed to a real list (Fix): pi-ai refuses a
+  hand-declared route with no models at boot ("resolves no models"), so the
+  launchers now probe GET /v1/models and pass the running aliases in
+  DSH_LLAMA_MODELS; the profile materializes the list from that via !!js
+  (fallback: the first-run default alias). Installer pnpm-installs the
+  agent-tools plugin deps (link: target had no node_modules).
 - 2026-10-30 — Onboarding wizard skipped on Moon (user ask): the first-run
   wizard assumes DEEPSEEK_API_KEY and the cloud catalog; shouldOfferOnboarding
   now answers false unless DSH_TUI_ONBOARDING=1.

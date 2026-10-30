@@ -40,16 +40,19 @@
 # Local model route. pi-ai's openai-completions adapter is the right shape
 # for llama.cpp; the dummy Authorization header satisfies its "no API key"
 # guard because the launchers run llama-server WITHOUT --api-key.
-# NO explicit models list: the route live-discovers whatever alias the
-# running llama-server loaded (GET /v1/models) — switch models by loading a
-# different start-*.bat and restarting dstm; /model lists everything the
-# server is serving, and a pinned default that is not currently up adopts
-# the first running alias (modelRoute.ts auto-detect). contextWindow is
-# deliberately 131072 (half of the 262144 KV the launchers run): CometStream
-# ops lore says quality on these finetunes rots past ~80-150k. maxTokens
-# 32768 matches the launchers' "set max_tokens HIGH (4K+) or thinking eats
-# the reply budget" note. thinkingFormat deepseek maps reasoning_content to
-# the thinking renderer.
+# The models list MUST be explicit (a hand-declared route resolves no models
+# from the installed catalog — catalog.ts refuses without configuration), so
+# the launcher probes GET /v1/models at launch and passes the running
+# aliases pipe-separated in DSH_LLAMA_MODELS; this list is materialized from
+# that at boot — auto-detect of whatever start-*.bat is loaded. Server down
+# or alias unknown -> the first-run default below. A pinned default that is
+# not in the live list adopts the first running alias (modelRoute.ts
+# auto-detect); /model switches and persist. contextWindow is deliberately
+# 131072 (half of the 262144 KV the launchers run): CometStream ops lore
+# says quality on these finetunes rots past ~80-150k. maxTokens 32768
+# matches the launchers' "set max_tokens HIGH (4K+) or thinking eats the
+# reply budget" note. thinkingFormat deepseek maps reasoning_content to the
+# thinking renderer.
 - id: llm-pi-ai
   name: "@deepseek-ai/dsh-llm-pi-ai"
   config:
@@ -65,6 +68,7 @@
         compat:
           maxTokensField: max_tokens
           thinkingFormat: deepseek
+        models: !!js "(process.env.DSH_LLAMA_MODELS ?? 'Qwen36-35B-ablit').split('|').filter(id => id.length > 0).map(id => ({ id: id, name: id }))"
 
 # STRICT FOLDER RULE: writes stay inside the launch workspace. This replaces
 # the dsh-tui bundle's Windows default (danger-full-access + never-ask) with
