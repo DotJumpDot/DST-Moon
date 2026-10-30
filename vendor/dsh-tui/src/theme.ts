@@ -398,8 +398,7 @@ const darkTheme: Theme = {
   syntaxConstant: rgb('#C98291'), // softened rose
   // DST Moon prose palette: the classic method pills (pastel 300-series on
   // dark). proseStrong/proseQuote mirror `text` so non-moon output stays
-  // byte-stable; the moon palette opts into brighter bold + moonlight-blue
-  // quotes.
+  // byte-stable; the moon palette mirrors pink-night (uncolored bold).
   methodGet: rgb('#7DD3FC'),
   methodPost: rgb('#6EE7B7'),
   methodPut: rgb('#FCD34D'),
@@ -445,119 +444,120 @@ const darkTheme: Theme = {
 }
 
 /**
- * Moon's context-bar ramp: the night deepens from indigo to the moon-gold
- * tip. `moon` is DST-Moon's product theme — the sakura-pink adaptation
- * (pink-night) re-tuned to a moonlit palette: pale gold accent (the moon),
- * moonlight blue second voice, near-white text, cool night neutrals where
- * pink-night ran warm.
+ * Moon's context-bar ramp: the night deepens from warm brown to the moon-gold
+ * tip — the same four-step structure as the sakura ramp, rotated to the gold
+ * family.
  */
 const MOON_BAR_RAMP: ContextBarRamp = {
-  contextBarSystem: rgb('#23324A'), // deep indigo night
-  contextBarPrompt: rgb('#33547C'),
-  contextBarAssistant: rgb('#4E7EA9'),
-  contextBarThinking: rgb('#7FAFD4'),
+  contextBarSystem: rgb('#4A3A20'), // deep warm brown
+  contextBarPrompt: rgb('#6E5530'),
+  contextBarAssistant: rgb('#94783C'),
+  contextBarThinking: rgb('#C4A452'),
   contextBarTools: rgb('#F2D583'), // moon-gold tip
 }
 
 /**
- * DST-Moon (`moon`): pink-night's structure with a moonlit voice — the
- * accent is pale moon gold (#F2D583–#F8E7B8), the second voice is moonlight
- * blue (#7FB6D9–#A9CBE8), and text is moon white (#EDF1F5) on cool night
- * neutrals (derived from #1B2129/#212936) so the palette reads calm rather
- * than neon on a dark terminal. Role base: `dark`. Ignition carries the
- * brand gold — the crest reads as the moon's glow on the night band.
+ * DST-Moon (`moon`): pink-night's concept with ONE hue family — everything
+ * that pink-night paints pink, moon paints GOLD: accent #F2D583, soft gold
+ * permission #F0CE86, amber borders #E5C073, deep-gold ide #D9A94F, bronze
+ * second voice #B5A878 where pink-night ran violet. Text is warm ivory
+ * (#F2EDE2) on warm night neutrals (derived from #29231A/#2E281E), matching
+ * pink-night's warm-neutral trick. The classic pastel method pills and the
+ * small functional escapes (green exec/strings, cyan function, amber numbers)
+ * carry over from pink-night unchanged. proseStrong/proseQuote mirror `text`
+ * (uncolored bold, pink-night behavior). Role base: `dark`. Ignition is the
+ * moon's gold glow over the night band.
  */
 const moonNightTheme: Theme = {
-  autoAccept: rgb('#8FBFE0'),
-  bashBorder: rgb('#7FB6D9'),
+  autoAccept: rgb('#B5A878'),
+  bashBorder: rgb('#E5C073'),
   accent: rgb('#F2D583'),
   toolNameMutate: rgb('#E5C07B'),
   toolNameExec: rgb('#8FBF9F'),
-  toolNameSearch: rgb('#8FC1E8'),
+  toolNameSearch: rgb('#C4B27B'),
   toolNameMcp: rgb('#F2D583'),
   accentShimmer: rgb('#F8E7B8'),
   activity: rgb('#F2D583'),
   activityShimmer: rgb('#F8E7B8'),
-  permission: rgb('#A9CBE8'),
-  permissionShimmer: rgb('#C9DFF2'),
+  permission: rgb('#F0CE86'),
+  permissionShimmer: rgb('#F9ECC9'),
   planMode: rgb('#7FB596'),
-  ide: rgb('#6FA8CC'),
-  promptBorder: rgb('#3E4A5C'),
-  promptBorderShimmer: rgb('#7FB6D9'),
-  text: rgb('#EDF1F5'),
-  inverseText: rgb('#1B2129'),
-  inactive: rgb('#97A2AE'),
-  inactiveShimmer: rgb('#B4BECA'),
-  subtle: rgb('#6C7683'),
-  suggestion: rgb('#A9CBE8'),
-  remember: rgb('#A9CBE8'),
-  background: rgb('#6FA8CC'),
+  ide: rgb('#D9A94F'),
+  promptBorder: rgb('#6E5A42'),
+  promptBorderShimmer: rgb('#E5C073'),
+  text: rgb('#F2EDE2'),
+  inverseText: rgb('#29231A'),
+  inactive: rgb('#A89E8C'),
+  inactiveShimmer: rgb('#C4BAA6'),
+  subtle: rgb('#776C5A'),
+  suggestion: rgb('#F0CE86'),
+  remember: rgb('#F0CE86'),
+  background: rgb('#D9B35F'),
   success: rgb('#8FC9A4'),
   error: rgb('#E66A6A'),
   warning: rgb('#E3B56C'),
-  merged: rgb('#8FBFE0'),
+  merged: rgb('#B5A878'),
   warningShimmer: rgb('#F0CB8E'),
-  diffAdded: rgb('#27332C'),
-  diffRemoved: rgb('#322F42'),
-  diffAddedDimmed: rgb('#28302B'),
-  diffRemovedDimmed: rgb('#2C2A3B'),
+  diffAdded: rgb('#2E3A2F'),
+  diffRemoved: rgb('#3E2C1E'),
+  diffAddedDimmed: rgb('#2F3630'),
+  diffRemovedDimmed: rgb('#38291C'),
   diffAddedWord: rgb('#5E9B72'),
-  diffRemovedWord: rgb('#7B93C9'),
-  toolCardBackground: rgb('#212936'),
-  toolCardBackgroundDim: rgb('#1A202B'),
+  diffRemovedWord: rgb('#C96B7B'),
+  toolCardBackground: rgb('#2E281E'),
+  toolCardBackgroundDim: rgb('#241F14'),
   toolDotExec: rgb('#7FB596'),
-  toolDotRead: rgb('#7FB6C9'),
-  toolDotWrite: rgb('#C2A9DF'),
+  toolDotRead: rgb('#D9C98F'),
+  toolDotWrite: rgb('#C2A878'),
   toolDotWeb: rgb('#F2D583'),
-  toolDotTask: rgb('#E0C9A0'),
-  syntaxKeyword: rgb('#7FB6D9'),
+  toolDotTask: rgb('#E0C68F'),
+  syntaxKeyword: rgb('#E5C073'),
   syntaxString: rgb('#8FC9A4'),
-  syntaxComment: rgb('#75808D'),
-  syntaxNumber: rgb('#E3C38B'),
+  syntaxComment: rgb('#857C6A'),
+  syntaxNumber: rgb('#E3B56C'),
   syntaxFunction: rgb('#7FC4CE'),
-  syntaxType: rgb('#B0A9E8'),
-  syntaxVariable: rgb('#D9DEE8'),
-  syntaxOperator: rgb('#97A2AE'),
-  syntaxPunctuation: rgb('#7E8A98'),
-  syntaxConstant: rgb('#86B8DC'),
-  // DST Moon prose palette (moonlit pastel pills; GET rides the sky-blue
-  // voice, PUT carries the moon gold, strong prose is pure white).
+  syntaxType: rgb('#C2A878'),
+  syntaxVariable: rgb('#DDD6C6'),
+  syntaxOperator: rgb('#A89E8C'),
+  syntaxPunctuation: rgb('#8A7E6A'),
+  syntaxConstant: rgb('#D9A94F'),
+  // DST Moon prose palette: pink-night's classic pastel pills, unchanged.
   methodGet: rgb('#7DD3FC'),
   methodPost: rgb('#6EE7B7'),
   methodPut: rgb('#FCD34D'),
   methodPatch: rgb('#C4B5FD'),
   methodDelete: rgb('#FCA5A5'),
   methodHead: rgb('#A1A1AA'),
-  proseStrong: rgb('#FFFFFF'),
-  proseQuote: rgb('#A9CBE8'),
-  professionalBlue: rgb('#7FB6D9'),
-  chromeYellow: rgb('#E3C38B'),
-  mascotBody: rgb('#D9C48A'),
+  proseStrong: rgb('#F2EDE2'),
+  proseQuote: rgb('#F2EDE2'),
+  professionalBlue: rgb('#E5C073'),
+  chromeYellow: rgb('#E3B56C'),
+  mascotBody: rgb('#D9B36A'),
   inputBackground: rgb('#000000'),
   userMessageBackground: '',
-  userMessageBackgroundHover: rgb('#3A465E'),
-  messageActionsBackground: rgb('#2A3140'),
-  selectionBg: rgb('#33405C'),
-  bashMessageBackgroundColor: rgb('#232A38'),
-  memoryBackgroundColor: rgb('#222A36'),
+  userMessageBackgroundHover: rgb('#7E6535'),
+  messageActionsBackground: rgb('#36301F'),
+  selectionBg: rgb('#554A2E'),
+  bashMessageBackgroundColor: rgb('#2E281C'),
+  memoryBackgroundColor: rgb('#322C1E'),
   rate_limit_fill: rgb('#F2D583'),
-  rate_limit_empty: rgb('#333C4C'),
-  fastMode: rgb('#E3C38B'),
-  fastModeShimmer: rgb('#F0D6A8'),
+  rate_limit_empty: rgb('#433A26'),
+  fastMode: rgb('#E09A58'),
+  fastModeShimmer: rgb('#ECB478'),
   userPromptLabel: rgb('#FFDF80'),
-  subagentBullet: rgb('#A8C6E0'),
-  subagentDescription: rgb('#EDF1F5'),
-  subagentModel: rgb('#97A2AE'),
-  subagentElapsed: rgb('#97A2AE'),
+  subagentBullet: rgb('#E0C68F'),
+  subagentDescription: rgb('#F2EDE2'),
+  subagentModel: rgb('#A89E8C'),
+  subagentElapsed: rgb('#A89E8C'),
   subagentToolName: rgb('#F2D583'),
   subagentStatusRunning: rgb('#F2D583'),
   subagentStatusCompleted: rgb('#8FC9A4'),
   subagentStatusFailed: rgb('#E66A6A'),
   // The family's bar ramp and crest: ignition is the moon's gold glow over
-  // the night band (ignitionDim shares toolCardBackgroundDim's night tone).
+  // the warm night band (ignitionDim shares toolCardBackgroundDim's tone).
   ...MOON_BAR_RAMP,
   ignition: rgb('#F2D583'),
-  ignitionDim: rgb('#1A202B'),
+  ignitionDim: rgb('#241F14'),
   cursor: '',
 }
 
