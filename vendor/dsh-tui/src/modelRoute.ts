@@ -156,5 +156,12 @@ export async function validateModelRoute(
     return { route: fallback, rejected: route }
   }
   if (models.length === 0 || models.some(model => model.id === route.model)) return { route }
+  // DST-Moon fork: a local llama.cpp route serves whatever alias the running
+  // server loaded — a pinned model that is not currently up should ADOPT the
+  // first running alias (auto-detect) rather than fall back to the harness's
+  // cloud default, which cannot work on this product at all.
+  if (route.provider !== fallback.provider) {
+    return { route: { provider: route.provider, model: models[0].id }, rejected: route }
+  }
   return { route: fallback, rejected: route }
 }

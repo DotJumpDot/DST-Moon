@@ -77,9 +77,11 @@ palette. `/theme` switches, and your pick persists.
 `profile/cordis.patch.yml` declares the `llama-local` pi-ai route
 (OpenAI-completions, `max_tokens` field, `reasoning_content` thinking) with
 `contextWindow: 131072` — deliberately half of the launchers' 262k KV, since
-quality on these finetunes rots past ~80–150k (CometStream ops lore). To
-point at a different local model: edit the `models:` entry + the TUI row's
-`model:`, re-run the installer.
+quality on these finetunes rots past ~80–150k (CometStream ops lore). There
+is **no hardcoded model list**: the route live-discovers whatever alias the
+running llama-server loaded, so switching models = load a different
+`start-*.bat`, restart `dstm` — the first-run default adopts whichever alias
+is live, and `/model` lists everything the server is serving.
 
 ## License
 

@@ -17,8 +17,10 @@
   name: "@deepseek-harness-tui/dsh-tui"
   config:
     # The only provider: a local llama.cpp server (OpenAI-compatible).
-    # Start it from C:\Code\Ai_Model (all launchers use 127.0.0.1:8080);
-    # the current main model is Qwen36-35B-ablit (APEX MiniPlus, 262k KV).
+    # Start it from C:\Code\Ai_Model (all launchers use 127.0.0.1:8080).
+    # `model` is only the FIRST-RUN default: the route discovers the live
+    # model list, and a pin that is not currently loaded adopts the first
+    # running alias at boot (auto-detect). /model switches and persists.
     provider: llama-local
     model: Qwen36-35B-ablit
     preset: !!js process.env.DSH_TUI_PRESET ?? undefined
@@ -38,14 +40,16 @@
 # Local model route. pi-ai's openai-completions adapter is the right shape
 # for llama.cpp; the dummy Authorization header satisfies its "no API key"
 # guard because the launchers run llama-server WITHOUT --api-key.
-# contextWindow is deliberately 131072 (half of the 262144 KV the launchers
-# run): CometStream ops lore says quality on these finetunes rots past
-# ~80-150k. Raise it if you would rather use the full window. maxTokens
+# NO explicit models list: the route live-discovers whatever alias the
+# running llama-server loaded (GET /v1/models) — switch models by loading a
+# different start-*.bat and restarting dstm; /model lists everything the
+# server is serving, and a pinned default that is not currently up adopts
+# the first running alias (modelRoute.ts auto-detect). contextWindow is
+# deliberately 131072 (half of the 262144 KV the launchers run): CometStream
+# ops lore says quality on these finetunes rots past ~80-150k. maxTokens
 # 32768 matches the launchers' "set max_tokens HIGH (4K+) or thinking eats
 # the reply budget" note. thinkingFormat deepseek maps reasoning_content to
-# the thinking renderer; no reasoningEfforts declared, so no effort control
-# is offered (llama.cpp takes no reasoning_effort here) — drop thinking by
-# switching the server's chat template or model, not via effort.
+# the thinking renderer.
 - id: llm-pi-ai
   name: "@deepseek-ai/dsh-llm-pi-ai"
   config:
@@ -58,14 +62,9 @@
           Authorization: "Bearer no-key"
         defaultContextWindow: 131072
         defaultMaxTokens: 32768
-        models:
-          - id: Qwen36-35B-ablit
-            name: Qwen36-35B-ablit
-            contextWindow: 131072
-            maxTokens: 32768
-            compat:
-              maxTokensField: max_tokens
-              thinkingFormat: deepseek
+        compat:
+          maxTokensField: max_tokens
+          thinkingFormat: deepseek
 
 # STRICT FOLDER RULE: writes stay inside the launch workspace. This replaces
 # the dsh-tui bundle's Windows default (danger-full-access + never-ask) with

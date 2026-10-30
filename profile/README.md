@@ -31,8 +31,10 @@ avoid.
 
 ## Switching models
 
-Edit the `models:` entry (id/contextWindow/maxTokens) and the TUI row's
-`model:` to match your llama-server `--alias`, then re-run
-`scripts/install-fork.bat`. If the server uses a different port, change
-`baseURL`. All current `C:\Code\Ai_Model\start-*.bat` launchers use
-`127.0.0.1:8080` with no key.
+Nothing to edit: the route has **no hardcoded model list** — it discovers
+the live model list from the running llama-server (`GET /v1/models`). Load
+a different `C:\Code\Ai_Model\start-*.bat`, restart `dstm`, done: a pinned
+default that isn't currently loaded adopts the first running alias, and
+`/model` lists everything the server is serving (your pick persists). If
+the server uses a different port, change `baseURL`. All current launchers
+use `127.0.0.1:8080` with no key.
