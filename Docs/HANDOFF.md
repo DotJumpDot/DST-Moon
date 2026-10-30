@@ -41,15 +41,15 @@ changes state a stranger (or future-you) would trip over.
   shows it too) — ignore.
 - Comet's profile `~/.dsh/profiles/dsh-tui/cordis.patch.yml` holds live
   credentials. Never copy from it; Moon's profile is hand-written.
-- Thai rendering (2026-10-31): the WT `font.face` array is NOT supported
-  (schema wants a string), so a merged font does the job — "Cascadia
-  Prompt" = Cascadia Mono glyphs + Prompt (Maki_Launcher's Thai font)
-  merged via fontTools pyftmerge; installed per-user
-  (`%LOCALAPPDATA%\Microsoft\Windows\Fonts\CascadiaPrompt-*.ttf` + HKCU
-  Fonts registry, winreg to avoid backslash quoting bugs). WT defaults
-  face = "Cascadia Prompt". GOTCHA: build from the WT-BUNDLED Cascadia
-  (`C:\Program Files\WindowsApps\Microsoft.WindowsTerminal_*\CascadiaMono.ttf`,
-  2407.024), NOT the Windows system one (2102.025, three years older —
-  the English look changes and the user notices). If the installed file
-  is locked, install under a new filename and re-point the registry.
-  Backups: `settings.json.bak-2026-10-31` next to the WT settings.json.
+- Thai rendering (2026-10-31): TRIED AND REVERTED. A merged font family
+  ("Cascadia Prompt" = WT-bundled Cascadia Mono 2407 + Prompt, built with
+  fontTools pyftmerge, per-user installed) put real Prompt Thai in the
+  terminal BUT the English went visibly wrong — Prompt's proportional
+  kerning/GPOS leaks into the terminal cell grid (irregular letter gaps),
+  and the user chose stock over it. Final state: settings.json has NO font
+  override (WT default Cascadia Mono, bundled 2407 cut; backup at
+  `settings.json.bak-2026-10-31`). The plain Prompt family remains
+  installed per-user (harmless; GUI apps can use it). If Thai-in-terminal
+  is ever revisited, the merge must ALSO strip/keep-out Prompt's Latin
+  GPOS kerning — and WT has no configurable fallback list (face is a
+  string; arrays are rejected by the schema).
