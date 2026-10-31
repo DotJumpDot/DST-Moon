@@ -185,6 +185,15 @@ export interface ChannelUi {
   readonly lastUsage:
     | { input: number; output: number; cacheRead: number; cacheWrite: number; at: number }
     | undefined
+  /** DST Moon local telemetry for the most recent settled model call: TTFT
+   *  (first token minus the step's start) and, when that request reported
+   *  usage, the effective prompt-processing rate over that span (whole
+   *  prompt — uncached input + cache hits — divided by TTFT; llama.cpp's
+   *  own prompt tok/s reads the same way). `at` is the settling message's
+   *  event time. Prefill is absent when the settlement carried no usage. */
+  readonly lastTimings:
+    | { ttftMs: number; prefillTps?: number; at: number }
+    | undefined
   /** Ledger of the most recently ended turn: per-turn usage aggregate,
    *  retry count, span, model/effort. Kept until the next turn ends, so the
    *  footer's turn mini-summary can read it while the next turn runs without

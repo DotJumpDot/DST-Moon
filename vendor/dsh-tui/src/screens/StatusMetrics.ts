@@ -162,6 +162,20 @@ export function formatTokens(count: number): string {
   return `${Math.round(value / 1000000)}M`
 }
 
+/** Compact first-token latency for the DST Moon local telemetry rows:
+ *  `940ms`, `2.4s`, `1m04s`. Plain text, no color ladder.
+ *  @param ttftMs - First-token latency in milliseconds; negative clamps to zero.
+ * @returns The compact latency string.
+ */
+export function formatTtft(ttftMs: number): string {
+  const ms = Math.max(0, Math.round(ttftMs))
+  if (ms < 1000) return `${ms}ms`
+  if (ms < 60_000) return `${(ms / 1000).toFixed(1)}s`
+  const minutes = Math.floor(ms / 60_000)
+  const seconds = Math.round((ms % 60_000) / 1000)
+  return `${minutes}m${String(seconds).padStart(2, '0')}s`
+}
+
 /** Context-pressure thresholds, shared by the bar readout's tint, the ctx
  *  field's hover gauge, and contextPressurePct's amber/red footer convention
  *  (amber ≥ 80%, red ≥ 95%). */

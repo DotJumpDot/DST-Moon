@@ -27,6 +27,7 @@ type LiveAdoptionState = Pick<
   | 'tps'
   | 'tpsSamples'
   | 'lastUsage'
+  | 'lastTimings'
   | 'turnUsage'
   | 'working'
   | 'emit'

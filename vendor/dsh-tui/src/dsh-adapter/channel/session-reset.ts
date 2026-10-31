@@ -23,6 +23,7 @@ export type SessionResetState = Pick<
   | 'tps'
   | 'tpsSamples'
   | 'lastUsage'
+  | 'lastTimings'
   | 'turnUsage'
   | 'turnOutcome'
   | 'contextSegments'
@@ -81,6 +82,8 @@ export function resetSessionProjection(
   state.tps = undefined
   state.tpsSamples = []
   state.lastUsage = undefined
+  // Local telemetry belongs to the old session's last request just as much.
+  state.lastTimings = undefined
   // The last turn's ledger belongs to the old session just as much.
   state.turnUsage = undefined
   // So does the turn's terminal state: replaying the target session

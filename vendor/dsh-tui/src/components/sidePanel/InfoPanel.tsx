@@ -21,7 +21,7 @@ import { formatContextUsage } from '../../tuiDisplayPrefs.js'
 import { modeDisplayName, type SessionModeSpec } from '../../sessionModes.js'
 import { estimateSessionCostSnapshotCny, isDeepSeekOfficialProvider, isPeakHour } from '../../deepseekPricing.js'
 import { formatCacheHitRate, formatCostReport } from '../../screens/StatusLine.js'
-import { contextPressureStep } from '../../screens/StatusMetrics.js'
+import { contextPressureStep, formatTtft } from '../../screens/StatusMetrics.js'
 import { displayWorkingDirectory, formatProject } from '../../sessions/format.js'
 import { homeDir } from '../../utils/paths.js'
 import { Divider } from '../design-system/Divider.js'
@@ -111,6 +111,17 @@ export function InfoPanel({ width, height, focused, visible }: PanelProps): Reac
   const tpsText = channel.tps !== undefined
     ? String(Math.round(channel.tps)) + ' tps'
     : none
+  // DST Moon local telemetry: the last request's own spans — TTFT and the
+  // effective prompt-processing rate. Plain single color like every other
+  // stat here; a slow first token flags the possibility of the fresh-load
+  // warm-up instead of painting a speed ladder.
+  const timings = channel.lastTimings
+  const ttftText = timings !== undefined
+    ? formatTtft(timings.ttftMs) + (timings.ttftMs >= 30_000 ? t('info-ttft-warmup') : '')
+    : none
+  const prefillText = timings?.prefillTps !== undefined
+    ? String(Math.round(timings.prefillTps)) + ' tok/s'
+    : none
   const jobs = channel.backgroundJobs
   const jobsLive = (jobs ?? []).filter(job => job.status === 'running' || job.status === 'stopping').length
   const jobsText = jobs !== undefined ? jobsLive + '/' + jobs.length : none
@@ -142,7 +153,7 @@ export function InfoPanel({ width, height, focused, visible }: PanelProps): Reac
         t('info-row-title'), t('info-row-session-id'), t('info-row-agent-id'), t('info-row-cwd'),
         t('info-row-branch'), t('info-row-model'), t('info-row-effort'), t('info-row-mode'),
         t('info-row-approval'), t('info-row-context'), t('info-row-window'), t('info-row-tokens'),
-        t('info-row-cache'), t('info-row-cost'), t('info-row-tps'), t('info-row-status'),
+        t('info-row-cache'), t('info-row-cost'), t('info-row-tps'), t('info-row-ttft'), t('info-row-prefill'), t('info-row-status'),
         t('info-row-activity'), t('info-row-jobs'), t('info-row-subagents'),
       ].map(s => stringWidth(s))),
       Math.max(6, Math.floor(contentWidth / 2)),
@@ -213,6 +224,8 @@ export function InfoPanel({ width, height, focused, visible }: PanelProps): Reac
           <Row label={t('info-row-cache')} value={cacheText} />
           <Row label={t('info-row-cost')} value={costText} />
           <Row label={t('info-row-tps')} value={tpsText} />
+          <Row label={t('info-row-ttft')} value={ttftText} />
+          <Row label={t('info-row-prefill')} value={prefillText} />
         </Section>
         <Section title={t('info-section-runtime')}>
           <Row label={t('info-row-status')} value={String(channel.status)} />

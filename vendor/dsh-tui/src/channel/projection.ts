@@ -39,9 +39,9 @@ const MIN_TPS_DECODE_MS = 500
 /** The channel state slice the projector writes. */
 export interface ProjectionState extends Mutable<Pick<ChannelUi,
   | 'thinkingFold' | 'activeToolCount' | 'spinnerMode' | 'goal' | 'contextSegments' | 'tokens' | 'mainCost'
-  | 'model' | 'lastUsage' | 'turnUsage' | 'turnOutcome' | 'lastUserText' | 'responseChars' | 'tps' | 'cancelPending' | 'working'
+  | 'model' | 'lastUsage' | 'lastTimings' | 'turnUsage' | 'turnOutcome' | 'lastUserText' | 'responseChars' | 'tps' | 'cancelPending' | 'working'
   | 'compaction' | 'turnStart' | 'contextWindow' | 'reasoningEffort' | 'sessionTitle' | 'agentPreset' | 'sessionColor'
-  | 'costReport' | 'workingDirectory'
+  | 'costReport' | 'workingDirectory' | 'provider'
 >> {
   rows: ChatRow[]
   tpsSamples: { tps: number; at: number }[]
@@ -101,6 +101,25 @@ export function textOfBlocks(blocks: readonly ContentBlockView[] | undefined): s
   return (blocks ?? []).map(block => (block.type === 'text' ? block.text : '')).join('').trim()
 }
 
+/** Connection-refused signatures the local llama.cpp route reports when the
+ *  server is down (undici `fetch failed`, a raw `ECONNREFUSED`, or a wrapped
+ *  `connection refused` / `unable to connect`). Deliberately excludes
+ *  timeouts: a server that is up but slow must not read as "down". */
+const LOCAL_SERVER_DOWN_RE = /econnrefused|connection refused|fetch failed|unable to connect/i
+
+/**
+ * DST Moon: the actionable form of a connection failure against the local
+ * llama.cpp route — "server down, start a bat, re-send" instead of the raw
+ * transport text. Returns undefined for every other message (other error
+ * kinds, other providers), leaving the original detail untouched.
+ * Exported for scripts/verify-local-telemetry.tsx.
+ */
+export function localServerFailureHint(message: string, provider: string | undefined): string | undefined {
+  if (provider !== 'llama-local') return undefined
+  if (!LOCAL_SERVER_DOWN_RE.test(message)) return undefined
+  return 'llama.cpp unreachable at 127.0.0.1:8080 — start a start-*.bat (Ai_Model), then re-send'
+}
+
 /** Create the shared projector over one channel state. */
 export function createChannelProjection(state: ProjectionState, deps: ChannelProjectionDeps) {
   /** The in-progress assistant text row; `undefined` when no step is streaming. */
@@ -120,12 +139,20 @@ export function createChannelProjection(state: ProjectionState, deps: ChannelPro
   let tpsTurnDecodeMs = 0
   let tpsTurnDecodeTokens = 0
   let tpsTurnSampled = false
+  /** Time of the newest folded event that carried one — the request-dispatch
+   *  anchor for the next step's TTFT (step.start itself carries no timestamp;
+   *  for a step's first model call the previous timed event is the user
+   *  message, for later steps the tool result that closed the loop). */
+  let lastTimedEventTime: number | undefined
   let tpsStep:
     | {
       turn: number
       step: number
       firstTokenTime: number | undefined
       outputEstimate: number
+      /** When step.start opened this model call — the request's dispatch
+       *  anchor for TTFT (first token minus this). */
+      startTime: number
     }
     | undefined
   /** The open turn's per-step token contributions (real or estimated): a
@@ -720,6 +747,31 @@ export function createChannelProjection(state: ProjectionState, deps: ChannelPro
       // Keep its timed span for later usage, without sampling a zero rate.
       tpsTurnSteps = [...tpsTurnSteps.filter(step => step.step !== event.step), { step: event.step, tokens: outputTokens ?? 0, estimated: reported === undefined }]
     }
+    // DST Moon local telemetry: the settled request's own spans. TTFT is
+    // first token minus step.start (the request's dispatch anchor); the
+    // prefill rate is the request's whole prompt — uncached input + cache
+    // hits — over that span, i.e. how fast the local server digested the
+    // context (cache hits inflate it, exactly like llama.cpp's own prompt
+    // tok/s). A settlement without usage (backend meters late) still
+    // records TTFT; the rate waits for a request that reports tokens.
+    if (
+      tpsMessageStep !== undefined &&
+      tpsMessageStep.turn === event.turn &&
+      tpsMessageStep.step === event.step &&
+      tpsMessageStep.firstTokenTime !== undefined
+    ) {
+      const ttftMs = Math.max(0, tpsMessageStep.firstTokenTime - tpsMessageStep.startTime)
+      const promptTokens = usage !== undefined
+        ? (usage.input ?? 0) + (usage.cacheRead ?? 0) + (usage.cacheWrite ?? 0)
+        : undefined
+      state.lastTimings = {
+        ttftMs,
+        ...(promptTokens !== undefined && promptTokens > 0 && ttftMs > 0
+          ? { prefillTps: promptTokens / (ttftMs / 1000) }
+          : {}),
+        at: event.time,
+      }
+    }
     if (
       tpsMessageStep !== undefined &&
       tpsMessageStep.turn === event.turn &&
@@ -1104,7 +1156,13 @@ export function createChannelProjection(state: ProjectionState, deps: ChannelPro
     // across rows. cleanRenderText is the render-path single-line contract
     // (sessionTree's preview() folds likewise for the tree).
     const label = reason.kind === 'other' ? reason.label : reason.kind
-    const detail = reason.kind === 'error' ? cleanRenderText(reason.message, NOTICE_CELLS) : ''
+    // DST Moon: a connection failure against the local llama.cpp route gets
+    // the actionable form ("server down — start a bat") instead of the raw
+    // transport text; every other message passes through untouched.
+    const hint = reason.kind === 'error' ? localServerFailureHint(reason.message, state.provider) : undefined
+    const detail = hint !== undefined
+      ? cleanRenderText(hint, NOTICE_CELLS)
+      : reason.kind === 'error' ? cleanRenderText(reason.message, NOTICE_CELLS) : ''
     appendRow({ id: deps.rowIds.value, kind: 'notice', text: `turn ${label}${detail ? ` · ${detail}` : ''}` })
     deps.rowIds.value += 1
     emitTurnSummary()
@@ -1119,9 +1177,12 @@ export function createChannelProjection(state: ProjectionState, deps: ChannelPro
 
   const applyEvent = (event: AgentEvent): void => {
     // The trajectory fold sees every event before the lane split: a child's
-    // lifecycle row belongs to the parent's ledger even though its
-    // assistant/tool traffic is skipped inside the fold (child lane).
+    // lifecycle row belongs to the parent's ledger even though its assistant
+    // and tool traffic is skipped inside the fold (child lane).
     deps.trajectory?.observe(event, replaying)
+    if ('time' in event && typeof (event as { time?: unknown }).time === 'number') {
+      lastTimedEventTime = (event as { time: number }).time
+    }
     // A subagent's own lane (its assistant and tool traffic) belongs to its
     // card and panels, never to the main transcript.
     if (laneOf(event) !== undefined) {
@@ -1153,6 +1214,9 @@ export function createChannelProjection(state: ProjectionState, deps: ChannelPro
             step: event.step,
             firstTokenTime: undefined,
             outputEstimate: 0,
+            // step.start carries no timestamp; the previous timed event is
+            // the closest anchor to the request's dispatch.
+            startTime: lastTimedEventTime ?? Date.now(),
           }
         }
         return
