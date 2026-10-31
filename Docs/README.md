@@ -9,6 +9,7 @@ lies is worse than no doc. Add new pages here when created.
 | [HOW_TO_RUN.md](HOW_TO_RUN.md) | Prereqs, setup, run, verify |
 | [PLAN_NOTES.md](PLAN_NOTES.md) | Phase plan, version pins, deferred ideas |
 | [HANDOFF.md](HANDOFF.md) | Where we left off, gotchas, next steps |
+| [LOCAL-AI.md](LOCAL-AI.md) | Local-model operating guide: telemetry, cache windows, audit results |
 | [DESIGN.md](DESIGN.md) | UX design & implementation map (inherited from DST-Comet + Moon deltas) |
 | [CHANGES.md](CHANGES.md) | Modified files vs the upstream pin (`2957277`) |
 

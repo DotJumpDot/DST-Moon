@@ -5,6 +5,21 @@ One line per meaningful change, newest first. Format:
 list under its date line. Entries mirror the commit log; commits
 themselves follow the style in `AGENTS.md`.
 
+- 2026-10-31 — Local-AI pass 2: telemetry, per-alias windows, crash/isolation
+  twins (user ask: "do all of that" minus the thinking-token counter).
+  Info panel gains First tok (TTFT) + Prefill rows fed by a new lastTimings
+  projection (cache % already rode llama.cpp cached_tokens — verified in the
+  session logs, 99.6-99.9% hits on follow-ups); a llama-local connection
+  failure now renders "start a start-*.bat, then re-send" instead of raw
+  `fetch failed`; launchers parse the Ai_Model bats (--alias/-c) so each
+  alias declares its real contextWindow (bonsai 32768, others 262144);
+  compaction-basic pinned at engine defaults (0.8/0.16) flip-ready in the
+  profile; comet's 2026-10-30 heightOf sparse-row crash ported to Moon and
+  the DSH_TUI_STATE_DIR launcher pin mirrored so Comet (~/.dsh-tui-comet)
+  and Moon (~/.dst-moon) can never share TUI state. New tooling:
+  scripts/analyze_session.py (hello budget 12.4k on the default preset,
+  append-only prefix, one title-LLM cache eviction per session) and
+  verify-local-telemetry.tsx (18 checks). Details: Docs/LOCAL-AI.md.
 - 2026-10-31 — Model name follows the running alias + liangshen preset
   (user reports): TUI row `model` now resolves from DSH_LLAMA_MODELS at
   boot (llama.cpp ignores the model field, so sessions worked while the

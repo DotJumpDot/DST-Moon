@@ -3,7 +3,24 @@
 Pick-up-where-we-left-off notes. Update at the end of every session that
 changes state a stranger (or future-you) would trip over.
 
-## Where we are (2026-10-30)
+## Where we are (2026-10-31, pass 2)
+
+- Local-AI pass 2 landed: TTFT/prefill telemetry (Info panel), server-down
+  error hint, per-alias context windows from the Ai_Model bats, compaction
+  pinned flip-ready, comet's heightOf crash ported, `DSH_TUI_STATE_DIR`
+  launcher pin mirrored. See `Docs/LOCAL-AI.md` — it is the operating
+  guide and holds the audit numbers (hello budget 12.4k default preset,
+  99%+ follow-up cache hits, one title-LLM cache eviction per session).
+- State separation is now symmetric: Comet owns `~/.dsh-tui-comet` (its
+  launchers pin it), Moon owns `~/.dst-moon` (paths.ts default + both dstm
+  launchers export the pin). Neither can touch the other. A THIRD dsh-tui
+  fork would get the upstream `~/.dsh-tui` and also collide with nothing.
+- Still open: live tool-call stress test against a running model (batched
+  calls + mangled args) — offline pieces verified, the live run needs the
+  server up. Sampling knobs are engine-side unwired (documented in
+  LOCAL-AI.md).
+
+## Where we were (2026-10-30)
 
 - Phase 1 complete: fork from DST-Comet landed, moon theme in, `dst-moon`
   profile installed and verified via `dsh --profile dst-moon --dump-config`

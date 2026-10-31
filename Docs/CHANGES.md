@@ -16,6 +16,32 @@ House rule: one line per file, why it changed. New upstream pins re-apply
 this list. Commits and pushes follow the AGENTS.md commit style
 (`Type: summary` + `- [x]` checklist + `Verified:` paragraph).
 
+## 2026-10-31 — local-AI pass 2: telemetry, ctx windows, crash/isolation twins
+
+| File | Why |
+|---|---|
+| `src/components/MessageList.tsx` | port of comet e4c0f70: heightOf degrades on sparse rows (`row?.id`), head-slide loop skips undefined entries — the 2026-10-30 `Cannot read properties of undefined (reading 'id')` crash lineage lives here too |
+| `src/utils/paths.ts` | `DSH_TUI_STATE_DIR` launcher pin (same convention as the comet fork): second override after `DSH_TUI_DATA_DIR`, default stays `~/.dst-moon` |
+| `src/channel/projection.ts` | local telemetry: `tpsStep.startTime` (anchored on the previous timed event — step.start carries no timestamp), `lastTimings` fold (TTFT + prefill tok/s from the settling usage), `localServerFailureHint` (llama-local connection failures get the "start a bat" form) |
+| `src/adapter/ports/channel-ui.ts` | port member `lastTimings` (`{ ttftMs, prefillTps?, at }`) |
+| `src/adapter/channel/ui-policy.ts` | classify `lastTimings` (exhaustive ChannelUi property inventory) |
+| `src/dsh-adapter/channel/state.ts` | initial-state Pick + `lastTimings: undefined` |
+| `src/dsh-adapter/channel/session-reset.ts` | reset `lastTimings` with the session; union member |
+| `src/dsh-adapter/channel/session-live-adoption.ts` | union member (live-adopted session keeps its timings) |
+| `src/channel/history-restore.ts` | scratchState gains `provider`/`lastTimings` |
+| `src/screens/StatusMetrics.ts` | `formatTtft` (`940ms` / `2.4s` / `1m04s`) |
+| `src/components/sidePanel/InfoPanel.tsx` | First tok + Prefill rows (plain single color; warm-up note ≥30s) |
+| `src/i18n.ts` | keys `info-row-ttft`, `info-row-prefill`, `info-ttft-warmup` |
+| `scripts/verify-local-telemetry.tsx` | NEW — formatTtft ladder, hint matcher gate, InfoPanel row render |
+
+Repo scaffolding this pass: `profile/cordis.patch.yml` (per-alias
+`contextWindow` from `DSH_LLAMA_CTX`, compaction-basic pinned at engine
+defaults), `bin/dstm` + `bin/dstm.cmd` (`DSH_TUI_STATE_DIR` pin, bat
+`--alias`/`-c` parse → `DSH_LLAMA_CTX`), `scripts/analyze_session.py`
+(NEW — hello budget / cache-hit / prefix-stability session analyzer),
+`Docs/LOCAL-AI.md` (NEW — the local-model operating guide + audit
+findings).
+
 Run-11 fixes (2026-10-30, run-11 advice D11–D15): Constellation `588975e`
 (on top of the lead's own D10 `e9eeed7`) — `src/browser/tools.ts`
 (browser_run_code_unsafe gains an in-tool timeout that returns a
