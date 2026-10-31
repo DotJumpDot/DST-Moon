@@ -52,12 +52,19 @@
 # that at boot — auto-detect of whatever start-*.bat is loaded. Server down
 # or alias unknown -> the first-run default below. A pinned default that is
 # not in the live list adopts the first running alias (modelRoute.ts
-# auto-detect); /model switches and persist. contextWindow is deliberately
-# 131072 (half of the 262144 KV the launchers run): CometStream ops lore
-# says quality on these finetunes rots past ~80-150k. maxTokens 32768
-# matches the launchers' "set max_tokens HIGH (4K+) or thinking eats the
-# reply budget" note. thinkingFormat deepseek maps reasoning_content to the
-# thinking renderer.
+# auto-detect); /model switches and persist.
+# Per-alias contextWindow: the launcher also parses the rig's start-*.bat
+# files (--alias X + -c N) into DSH_LLAMA_CTX (alias:ctx pipe pairs), and
+# each catalog entry carries its real window — bonsai declares 32768, the
+# 262k models declare 262144 — so the context bar and pressure warnings
+# follow the model that is actually loaded. No ctx known (bats unreadable,
+# default fallback) -> the route-level defaultContextWindow: deliberately
+# 131072, half of the 262144 KV — CometStream ops lore says quality on these
+# finetunes rots past ~80-150k. maxTokens 32768 matches the launchers' "set
+# max_tokens HIGH (4K+) or thinking eats the reply budget" note.
+# thinkingFormat deepseek maps reasoning_content to the thinking renderer,
+# and the adapter reads llama.cpp's prompt_tokens_details.cached_tokens into
+# cacheRead — the TUI's cache-hit % / prefill telemetry ride on that.
 - id: llm-pi-ai
   name: "@deepseek-ai/dsh-llm-pi-ai"
   config:
@@ -73,7 +80,19 @@
         compat:
           maxTokensField: max_tokens
           thinkingFormat: deepseek
-        models: !!js "(process.env.DSH_LLAMA_MODELS ?? 'Qwen36-35B-ablit').split('|').filter(id => id.length > 0).map(id => ({ id: id, name: id }))"
+        models: !!js "(() => { const ids = (process.env.DSH_LLAMA_MODELS ?? 'Qwen36-35B-ablit').split('|').filter(id => id.length > 0); const ctx = Object.fromEntries((process.env.DSH_LLAMA_CTX ?? '').split('|').filter(s => s.length > 0).map(s => { const i = s.indexOf(':'); return [s.slice(0, i).toLowerCase(), Number(s.slice(i + 1))] })); return ids.map(id => { const w = ctx[id.toLowerCase()]; return { id, name: id, ...(Number.isInteger(w) && w !== undefined && w > 0 ? { contextWindow: w } : {}) } }) })()"
+
+# Compaction, pinned at the engine defaults so the knobs are visible and
+# flip-ready for weak local summarizers: compact when request pressure
+# crosses 80% of the DECLARED window (which follows the loaded alias —
+# ~26k on bonsai-32k, ~210k on the 262k models), keep a 16% verbatim tail.
+# If summaries read lossy, raise retainRatio (more verbatim) or lower
+# thresholdRatio (compact earlier, smaller summaries) — per-alias via
+# modelPolicies if one model needs different behavior.
+- id: compaction-basic
+  config:
+    thresholdRatio: 0.8
+    retainRatio: 0.16
 
 # STRICT FOLDER RULE: writes stay inside the launch workspace. This replaces
 # the dsh-tui bundle's Windows default (danger-full-access + never-ask) with

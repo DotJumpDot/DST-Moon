@@ -22,10 +22,21 @@ export function homeDir(): string {
  * Data directory all preferences/history live in.
  *
  * DST-Moon fork: `~/.dst-moon`, so this product never shares state with a
- * sibling dsh-tui fork (DST-Moon keeps `~/.dsh-tui`). `DSH_TUI_DATA_DIR`
- * overrides for tests/embeds.
+ * sibling dsh-tui fork (DST-Comet pins `~/.dsh-tui-comet`). Resolution
+ * order: `DSH_TUI_DATA_DIR` (tests/embeds), then `DSH_TUI_STATE_DIR` — the
+ * cross-fork launcher-pin convention (both dstm launchers export it
+ * explicitly, so the pin survives even if a rebase restores the upstream
+ * `~/.dsh-tui` default in this module) — then the fork default.
  */
-export const DATA_DIR = process.env.DSH_TUI_DATA_DIR || join(homeDir(), '.dst-moon')
+export const DATA_DIR = resolveDataDir()
+
+function resolveDataDir(): string {
+  const testOverride = process.env.DSH_TUI_DATA_DIR
+  if (testOverride !== undefined && testOverride !== '') return testOverride
+  const pin = process.env.DSH_TUI_STATE_DIR
+  if (pin !== undefined && pin.trim() !== '') return pin.trim()
+  return join(homeDir(), '.dst-moon')
+}
 
 /**
  * Where one backend keeps its own files: `<dataRoot>/backends/<id>`, keyed by

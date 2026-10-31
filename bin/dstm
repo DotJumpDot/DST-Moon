@@ -11,6 +11,11 @@ export NODE_ENV
 # Session logs live under our own data dir unless the caller overrides.
 : "${DSH_TUI_SESSION_ROOT:=$HOME/.dst-moon/sessions}"
 export DSH_TUI_SESSION_ROOT
+# Fork-isolation pin (same convention as the comet fork's launchers): the TUI
+# also reads DSH_TUI_STATE_DIR, so even if a rebase restores the upstream
+# ~/.dsh-tui default the state dir stays Moon-owned.
+: "${DSH_TUI_STATE_DIR:=$HOME/.dst-moon}"
+export DSH_TUI_STATE_DIR
 # Ask the local server which aliases it is serving and pass them to the
 # profile pipe-separated (DSH_LLAMA_MODELS): the llama-local route's model
 # list is materialized from this at boot, so whatever start-*.bat is loaded
@@ -24,6 +29,28 @@ fetch("http://127.0.0.1:8080/v1/models").then(r => r.json()).then(j => {
 }).catch(() => { clearTimeout(t); process.exit(0) })
 ' 2>/dev/null)
 export DSH_LLAMA_MODELS
+# Per-alias context windows from the rig's start-*.bat launchers
+# (--alias X + -c N): alias:ctx pipe pairs -> DSH_LLAMA_CTX, so the declared
+# window follows the loaded model (bonsai 32k vs 262k others).
+# DSH_LLAMA_BATS_DIR overrides the rig default; missing dir -> empty.
+DSH_LLAMA_CTX=$(node -e '
+const fs = require("node:fs"), p = require("node:path")
+const dir = process.env.DSH_LLAMA_BATS_DIR || "C:/Code/Ai_Model"
+const out = []
+try {
+  for (const f of fs.readdirSync(dir)) {
+    if (!/^start-.*\.bat$/i.test(f)) continue
+    const tk = fs.readFileSync(p.join(dir, f), "latin1").replace(/\r|\n/g, " ").split(/\s+/)
+    const ai = tk.indexOf("--alias")
+    let ci = tk.indexOf("--ctx-size"); if (ci < 0) ci = tk.indexOf("-c")
+    const a = ai >= 0 ? tk[ai + 1] : undefined
+    const s = ci >= 0 ? tk[ci + 1] : undefined
+    if (a && s && /^\d+$/.test(s)) out.push(a + ":" + s)
+  }
+} catch {}
+process.stdout.write(out.join("|"))
+' 2>/dev/null)
+export DSH_LLAMA_CTX
 if [ -n "$DSH_TUI_WORKSPACE" ]; then cd "$DSH_TUI_WORKSPACE"; fi
 
 command -v dsh >/dev/null 2>&1 || {
