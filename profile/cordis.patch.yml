@@ -36,6 +36,13 @@
     whaleGirl: true
     minimal: false
     fullscreen: true
+    # Pin the base splash face. Upstream rotates the big-text font by local
+    # date (dsh-tui.splashFont: daily default) — some days land on the
+    # stencil/dot cutout faces whose notched letters read as broken glyphs.
+    # bold is the stock look. The data dir's settings.json user layer also
+    # carries this (user layer wins); this row keeps future patch imports
+    # on bold too.
+    splashFont: bold
     terminalImages: true
     lang: en
     toolBackground: none

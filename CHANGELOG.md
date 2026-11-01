@@ -5,6 +5,12 @@ One line per meaningful change, newest first. Format:
 list under its date line. Entries mirror the commit log; commits
 themselves follow the style in `AGENTS.md`.
 
+- 2026-11-02 — Fix: splash font pinned to bold. The "twisted/deformed"
+  splash glyphs were upstream's date-rotated splash font
+  (dsh-tui.splashFont: daily default) — Nov 1-2 land on the stencil
+  cutout face. Profile row + the data dir's settings user layer
+  (~/.dst-moon/settings.json, which held an explicit "daily") both pin
+  `bold` now; Star got the same fix the same day.
 - 2026-10-31 — Local-AI pass 2: telemetry, per-alias windows, crash/isolation
   twins (user ask: "do all of that" minus the thinking-token counter).
   Info panel gains First tok (TTFT) + Prefill rows fed by a new lastTimings
