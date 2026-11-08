@@ -7,15 +7,17 @@ forks the upstreams below.
 
 | Path | Upstream | Pinned commit | Date |
 |---|---|---|---|
-| `vendor/dsh-tui` | https://github.com/ccch1mneyyy/dsh-TUI | `29572774890a4a89ae1fa562dd15a1ae21bb3593` | 2026-10-24 |
+| `vendor/dsh-tui` | https://github.com/ccch1mneyyy/dsh-TUI | `224f847d02c2157f43862d2792cf9d7459222f4c` (tag v0.19.0) | 2026-11-06 |
 | `vendor/deepseek-harness` (not tracked, local only) | https://github.com/deepseek-ai/deepseek-harness | `22ddee3792402c3e70ec5f86a63c3e3e895a2f60` | 2026-10-23 |
-| `engine/` (forked copy, tracked) | same deepseek-harness pin, `packages/experimental/{agent-team,tool-agent-team,agent-team-profile}` | `22ddee3792402c3e70ec5f86a63c3e3e895a2f60` | 2026-10-26 |
+| `engine/` (forked copy, tracked) | deepseek-harness tag `dsh-v0.2.2-rc.1` (`66491b05e3f05ad35bcdd4f6cd7ed26041d9e3db`), `packages/experimental/{agent-team,tool-agent-team,agent-team-profile}` — fork versions `0.2.2-rc.1-moon.1` | `66491b05e3f05ad35bcdd4f6cd7ed26041d9e3db` | 2026-11-09 |
 | whole repo | our DST-Comet fork (`C:\Code\Dsh_Tui_Comet`, main @ 2026-10-30, minus `Advice/`, `orchestra/`, `Picture/`, profile secrets) | — | 2026-10-30 |
 
-Runtime pairing used for development: `@deepseek-ai/dsh@0.2.1-rc.2` (npm global)
-against `dsh-tui` at the pinned commit (which targets dsh `0.2.1-rc.2`).
-Engine fork versions are `0.2.1-rc.2-moon.1` (renamed from Comet's
-`-comet.1`; the running host pairs rc.2 == rc.3 bundles byte-for-byte).
+Runtime pairing used for development: `@deepseek-ai/dsh@0.2.2-rc.1` (npm global)
+against `dsh-tui` at the pinned commit (v0.19.0 declares engines back to
+0.2.0-rc.1). Engine fork versions are `0.2.2-rc.1-moon.1` (re-based from
+rc.2-era `-moon.1` in the 2026-11-09 family migration; the rc.2 registry-read
+workaround is retired — the journal now takes the published
+`teamProjectionHandle`).
 
 ## Why deepseek-harness is not in git
 

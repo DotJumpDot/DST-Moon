@@ -1,4 +1,4 @@
-# Modified files (vs upstream pin 2957277)
+# Modified files (vs upstream pin 224f847d / v0.19.0)
 
 > Inherited from the DST-Comet fork (2026-10-30 snapshot) and still
 > accurate: every file below is modified in this fork too. DST-Moon's own
@@ -15,6 +15,25 @@
 House rule: one line per file, why it changed. New upstream pins re-apply
 this list. Commits and pushes follow the AGENTS.md commit style
 (`Type: summary` + `- [x]` checklist + `Verified:` paragraph).
+
+Upstream migration round (2026-11-09, whole family with DST-Comet +
+DST-Star: TUI 0.17.0 → 0.19.0, engine 0.2.1-rc.2 → 0.2.2-rc.1):
+`vendor/dsh-tui` re-merged onto upstream tag v0.19.0 by three-way
+keep-both merge — the SAME 5 conflicts as Comet, resolved the same way
+(verify-agents-side-panel §12/13 + upstream §14, projection imports,
+SubagentDashboard channel hints + pinned footer, AssistantToolUseMessage
+expanded-row persistence through our family wash, combined toolBackground
+hint); Moon's local-AI surface (telemetry, per-alias context windows,
+state-dir pin, compaction knobs, session analyzer) auto-merged clean.
+`patch-surface.snapshot.json` regenerated. `engine/` re-forked from
+harness `dsh-v0.2.2-rc.1`: versions `0.2.2-rc.1-moon.1`, package
+descriptions re-branded DST-Moon, peers/devDeps exact `0.2.2-rc.1` +
+cordis `4.1.0`, journal takes the published `teamProjectionHandle`
+(rc.2 registry workaround retired), dsh-llm root import + peer declared.
+`plugins/dst-moon-agent-tools`: engines.dsh widened (+0.2.2-rc.1),
+dsh-tools `0.2.2-rc.1` vendored. Installed into the `dst-moon` profile
+(leaf-first engine + TUI; profile patch-yml unchanged vs pre-install
+snapshot). Fresh `dstm` required.
 
 ## 2026-10-31 — local-AI pass 2: telemetry, ctx windows, crash/isolation twins
 
