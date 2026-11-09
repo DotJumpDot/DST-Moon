@@ -16,6 +16,17 @@ House rule: one line per file, why it changed. New upstream pins re-apply
 this list. Commits and pushes follow the AGENTS.md commit style
 (`Type: summary` + `- [x]` checklist + `Verified:` paragraph).
 
+Taskbar badge round (2026-11-10, ported from DST-Comet `5a1b985863`,
+pairs Constellation `86b74a6`): Constellation draws a NUMBER on every
+launched owner Chrome's taskbar icon so the human can tell the lanes'
+windows apart; the engine's `human_task_create` gained `chrome_badge`
+(stored on the task, in the task view, the `human-meta` footer, the audit
+line, the lead wake message) and the human wall panel renders a bold `[7]`
+chip on the row plus a "Chrome [7] on the taskbar" line in the expanded
+ask. Files: `engine/tool-agent-team/src/human-tasks.ts` + `src/index.ts`
++ `tests/human-tasks.spec.ts`, `vendor/dsh-tui/src/components/sidePanel/
+humanWall.ts` + `HumanWallPanel.tsx`.
+
 Upstream migration round (2026-11-09, whole family with DST-Comet +
 DST-Star: TUI 0.17.0 → 0.19.0, engine 0.2.1-rc.2 → 0.2.2-rc.1):
 `vendor/dsh-tui` re-merged onto upstream tag v0.19.0 by three-way
