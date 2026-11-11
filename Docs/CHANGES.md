@@ -12,6 +12,16 @@
 > override), dsh-adapter/compat/sessionLog.ts (session-root comment),
 > scripts/verify-moon-transcript.tsx (renamed from verify-comet-*).
 
+Lag + torn-frame round (2026-11-11, ported from DST-Comet same-day): lane
+event coalescing + settled-row skip in `src/dsh-adapter/channel/
+subagent-projection.ts`, control-byte stripping at the output/store/preview
+seams (`src/channel/sanitize.ts` `stripTerminalControls`, applied in
+`src/channel/activity.ts` + `src/channel/transcript.ts`) — a raw `\r` or ESC
+in streamed tool output desynced Ink's frame model from the physical cursor
+(the interleaved ghost frames cleared only by drag-select/resize), and
+per-event synchronous dashboard syncs burned the main thread under
+concurrent lanes.
+
 House rule: one line per file, why it changed. New upstream pins re-apply
 this list. Commits and pushes follow the AGENTS.md commit style
 (`Type: summary` + `- [x]` checklist + `Verified:` paragraph).
