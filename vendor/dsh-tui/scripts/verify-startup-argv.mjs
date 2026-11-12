@@ -315,6 +315,12 @@ try {
     PATH: [stubDir, dirname(process.execPath), ...(isWin ? ['C:\\Windows\\System32', 'C:\\Windows'] : ['/usr/bin', '/bin'])].join(delimiter),
     ...(isWin ? { SystemRoot: process.env.SystemRoot, ComSpec: process.env.ComSpec, PATHEXT: process.env.PATHEXT } : {}),
     HOME: temp, USERPROFILE: temp, DSH_HOME: dshHome,
+    // DST-Moon: this fork's default data dir is `~/.dst-moon` (fork isolation),
+    // but the stub markers below are written to `<temp>/.dsh-tui` — pin the
+    // state dir at the stub so every fork resolves the same fixture, via the
+    // documented cross-fork launcher-pin convention (DSH_TUI_STATE_DIR outranks
+    // the fork default in utils/paths.ts).
+    DSH_TUI_STATE_DIR: join(temp, '.dsh-tui'),
     DSH_TUI_ARGV_PROBE: '1', DSH_TUI_ARGV_STARTUP: startupFile, NODE_OPTIONS: '--no-deprecation',
     // A Claude launch would go to the entry; routing is off to keep these on `dsh --profile`.
     DSH_TUI_HOST_ENTRY: '0',
@@ -478,6 +484,8 @@ try {
             env: {
               ...env, DSH_TUI_ARGV_SHAPE: shape,
               HOME: caseHome, USERPROFILE: caseHome,
+              // DST-Moon: same fork-default fix as above, per case home.
+              DSH_TUI_STATE_DIR: casePrefs,
               ...(test.envBackend === undefined ? {} : { DSH_TUI_BACKEND: test.envBackend }),
               ...(test.config === undefined ? {} : { DSH_TUI_ARGV_CONFIG: JSON.stringify(test.config) }),
               ...test.envExtra,

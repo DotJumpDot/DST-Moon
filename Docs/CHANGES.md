@@ -1,4 +1,4 @@
-# Modified files (vs upstream pin 224f847d / v0.19.0)
+# Modified files (vs upstream pin 8958f08 / v0.20.0)
 
 > Inherited from the DST-Comet fork (2026-10-30 snapshot) and still
 > accurate: every file below is modified in this fork too. DST-Moon's own
@@ -11,6 +11,32 @@
 > comments), utils/paths.ts (DATA_DIR = ~/.dst-moon, DSH_TUI_DATA_DIR
 > override), dsh-adapter/compat/sessionLog.ts (session-root comment),
 > scripts/verify-moon-transcript.tsx (renamed from verify-comet-*).
+
+Upstream migration v0.19.0 → v0.20.0 (2026-11-13, same round as Comet
+`14844a1daa` — user ask: family to 0.20.0). TUI-only, engine stays
+0.2.2-rc.1 (rc.2 removes spawn_teammate + catalog v3 vs our forked team
+stack; the 0.20.0 TUI shape-probes the host and supports rc.1). Same 5
+conflicts as Comet, same keep-both resolutions (i18n human-wall block +
+upstream /team rc.1/rc.2 comment; SubagentDetailScene narrow header +
+rc.2 name chip — dormant on rc.1; AssistantToolUseMessage imports
+(useTheme + JsDiff); subagent-projection parentSessionId + onAgentStatus;
+team-tools Moon wake reasons + upstream interrupt_agent accepted-fallback).
+repro-scroll-drift.tsx updated to the 0.20.0 scroll contract (≤10 one-way
+settle, PgDn recovery — see Comet's CHANGES.md for the measured tradeoff).
+**Moon-only gate fix in scripts/verify-startup-argv.mjs**: upstream's new
+Claude-kernel refusal cases write markers under a hard-coded
+`<home>/.dsh-tui`, but this fork's default data dir is `~/.dst-moon` — the
+spawn env now pins `DSH_TUI_STATE_DIR` at the stub/case dirs (the
+documented cross-fork launcher-pin convention, honored above the fork
+default by utils/paths.ts); 227/241 → 241/241. verify:build baseline:
+8/105 — upstream's known in-suite flakes (contract, plugin-grants, btw —
+pass standalone; terminal-images env-only) + Moon's 4 PRE-EXISTING
+baseline fails (runtime-themes, theme-preview, history-search,
+session-mounts — proven failing on the untouched 0.19.0 tree by stash
+differential; not introduced by this migration). Installed into the
+dst-moon profile; the install's pnpm materialized ALL 12 @deepseek-ai
+junctions as plain dirs — restored via Temp/restore-junctions-all.ps1
+(12/12 verified, dump-config OK).
 
 Lag + torn-frame round (2026-11-11, ported from DST-Comet same-day): lane
 event coalescing + settled-row skip in `src/dsh-adapter/channel/
