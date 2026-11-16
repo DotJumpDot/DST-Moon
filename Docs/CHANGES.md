@@ -52,6 +52,19 @@ House rule: one line per file, why it changed. New upstream pins re-apply
 this list. Commits and pushes follow the AGENTS.md commit style
 (`Type: summary` + `- [x]` checklist + `Verified:` paragraph).
 
+Wall-reply round (2026-11-16, run-43 §6 advice). A human who typed a real
+answer into the wall panel but pressed no resolve button left the queue
+reading `waiting` — "answered but unresolved" and "untouched" were
+indistinguishable, and the parked lane stayed parked with the Lead unable to
+say why. Engine: `HumanTask` gains `repliedAt`/`replyNote` + `TeamOps.
+markReplied()` (audited, latest-note-wins, resolve still the only release);
+new tool `human_task_reply {task_id, note}` (any member; board mirror gets
+a `↩ REPLIED` line best-effort); `human_task_list` status enum gains
+`replied`. TUI: `human_task_reply` gets a compact card (DISPLAY_KEYS +
+callTitle) in team-tools.ts. The duplicate background-subagent "finished"
+notice (run-43 §5) is NOT ours to fix — the notice writer lives in the
+global dsh runtime's subagent machinery, outside the fork.
+
 Taskbar badge round (2026-11-10, ported from DST-Comet `5a1b985863`,
 pairs Constellation `86b74a6`): Constellation draws a NUMBER on every
 launched owner Chrome's taskbar icon so the human can tell the lanes'
