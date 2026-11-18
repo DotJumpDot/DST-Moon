@@ -12,6 +12,16 @@
 > override), dsh-adapter/compat/sessionLog.ts (session-root comment),
 > scripts/verify-moon-transcript.tsx (renamed from verify-comet-*).
 
+Run-50 engine round (2026-11-18, ported from Comet `22f0ee1364`, same
+advice file Advice/advice-2026-11-18-run50.md §4/§8/§9). spawn_teammate
+accepts task_id (board task prepended to the prompt verbatim — kills
+prompt-vs-board drift) and max_requests (canonical budget line: cap
+INCLUDES cleanup, reserve ~15%; the result note reminds the Lead to
+enforce via constellation budget_set); wait_agent task wakes carry
+claim_only:true when the board diff across the wait shows only bare
+claims — the no-information wake that cost ~10 Lead round trips per run
+(classifier = exported pure onlyClaimTransitions).
+
 Upstream migration v0.19.0 → v0.20.0 (2026-11-13, same round as Comet
 `14844a1daa` — user ask: family to 0.20.0). TUI-only, engine stays
 0.2.2-rc.1 (rc.2 removes spawn_teammate + catalog v3 vs our forked team
